@@ -1,0 +1,163 @@
+import React, { useState } from "react";
+
+// Devils Player Quiz - React Component
+// - Multiple-choice quiz (25 players)
+// - Each question randomly shows either a headshot or action photo
+// - Uses fixed URLs for all images (no Wikipedia fetches)
+
+const PLAYERS = [
+  { name: "Jesper Bratt", position: "W/F", number: 63, fact: "Sixth-round pick (2016) who developed into a top scorer.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8479316.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8479316.png" },
+  { name: "Nico Hischier", position: "C", number: 13, fact: "First Swiss player selected 1st overall (2017).",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8479315.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8479315.png" },
+  { name: "Jack Hughes", position: "C", number: 86, fact: "1st overall pick in 2019 and a core offensive driver.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8480802.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8480802.png" },
+  { name: "Timo Meier", position: "RW", number: 28, fact: "Swiss-born winger added to boost scoring.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8479317.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8479317.png" },
+  { name: "Ondřej Palát", position: "W", number: 18, fact: "Versatile veteran winger with playoff experience.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8475766.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8475766.png" },
+  { name: "Dawson Mercer", position: "C/RW", number: 91, fact: "Young forward growing into a reliable multi-role player.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8481295.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8481295.png" },
+  { name: "Connor Brown", position: "RW", number: 16, fact: "Two-way winger who adds depth and defensive value.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8477934.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8477934.png" },
+  { name: "Juho Lammikko", position: "F", number: 83, fact: "Finnish forward who provides size and flexibility.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8477945.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8477945.png" },
+  { name: "Brian Halonen", position: "W", number: 48, fact: "Physical young forward developing at the NHL level.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482210.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482210.png" },
+  { name: "Stefan Noesen", position: "W", number: 11, fact: "Reliable secondary scorer with good high-danger metrics.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8477951.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8477951.png" },
+
+  { name: "Luke Hughes", position: "D", number: 43, fact: "Top young defenseman who logs heavy minutes.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8480804.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8480804.png" },
+  { name: "Dougie Hamilton", position: "D", number: 7, fact: "Big, mobile defenseman who runs the power play.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8476463.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8476463.png" },
+  { name: "Brett Pesce", position: "D", number: 22, fact: "Steady right-side defenseman who eats minutes.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8477917.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8477917.png" },
+  { name: "Brenden Dillon", position: "D", number: 5, fact: "Veteran, physical stay-at-home defenseman.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8475164.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8475164.png" },
+  { name: "Jonas Siegenthaler", position: "D", number: 71, fact: "Swiss-born left-side defender with size and experience.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8477475.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8477475.png" },
+  { name: "Simon Nemec", position: "D", number: 17, fact: "Highly-touted Slovak defenseman drafted 2nd overall in 2022.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482203.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482203.png" },
+  { name: "Dennis Cholowski", position: "D", number: 44, fact: "Young defenseman working into a regular rotation role.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8478018.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8478018.png" },
+
+  { name: "Jacob Markström", position: "G", number: 25, fact: "Workhorse goalie who logged the most TOI among Devils netminders.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8474581.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8474581.png" },
+  { name: "Jake Allen", position: "G", number: 34, fact: "Veteran backup and occasional starter with valuable experience.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8476453.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8476453.png" },
+
+  { name: "Cody Glass", position: "F", number: 12, fact: "Former high-draft pick still finding his niche with the team.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8481521.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8481521.png" },
+  { name: "Paul Cotter", position: "F", number: 47, fact: "Energy forward known for forechecking and physical play.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482211.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482211.png" },
+  { name: "Arseny Gritsyuk", position: "W", number: 81, fact: "Russian winger with promising offensive instincts.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482212.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482212.png" },
+  { name: "Seamus Casey", position: "D", number: 24, fact: "Younger defenseman adding depth on the left side.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482213.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482213.png" },
+  { name: "Johnathan Kovacevic", position: "D", number: null, fact: "Up-and-coming blueliner in the Devils' system.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482214.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482214.png" },
+  { name: "Nico Daws", position: "G", number: 50, fact: "Young goalie in the system who provides depth and upside.",
+    headshot: "https://nhl.bamcontent.com/images/headshots/current/168x168/8482215.png",
+    action: "https://nhl.bamcontent.com/images/actionshots/8482215.png" }
+];
+
+function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+export default function DevilsQuiz() {
+  const [questions, setQuestions] = useState(shuffle(PLAYERS.map(p => {
+    const choices = shuffle([p, ...shuffle(PLAYERS.filter(x => x.name !== p.name)).slice(0,3)]);
+    return { player: p, choices };
+  })));
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selected, setSelected] = useState(null);
+
+  const q = questions[index];
+  const correct = q.player;
+  const imgType = Math.random() > 0.5 ? 'headshot' : 'action';
+
+  function pick(choice) {
+    if (selected) return;
+    setSelected(choice.name);
+    if (choice.name === correct.name) setScore(s => s + 1);
+  }
+
+  function next() {
+    setSelected(null);
+    if (index + 1 < questions.length) setIndex(index + 1);
+    else alert(`Quiz complete! Score: ${score}/${questions.length}`);
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-4xl mx-auto bg-gray-800 rounded-2xl shadow-lg p-6">
+        <header className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">New Jersey Devils — Player ID Quiz</h1>
+          <div className="text-sm text-gray-300">Question {index+1}/{questions.length} • Score: {score}</div>
+        </header>
+
+        <main>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="w-full md:w-1/2 flex justify-center">
+              <div className="w-64 h-64 rounded-xl overflow-hidden bg-gray-700 flex items-center justify-center">
+                <img src={correct[imgType]} alt={correct.name} className="w-full h-full object-cover" />
+              </div>
+            </div>
+
+            <div className="w-full md:w-1/2">
+              <div className="mb-3 text-gray-300">Identify the player shown in the photo:</div>
+              <div className="grid grid-cols-2 gap-3">
+                {q.choices.map(c => {
+                  const isCorrect = selected && c.name === correct.name;
+                  const isWrong = selected && c.name === selected && c.name !== correct.name;
+                  return (
+                    <button key={c.name} onClick={() => pick(c)}
+                      className={`p-3 text-left rounded-lg border ${isCorrect ? 'border-green-400 bg-green-900/40' : ''} ${isWrong ? 'border-red-400 bg-red-900/40' : 'border-gray-700'} hover:scale-[1.01] transition`}>
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-sm text-gray-400">{c.position} • #{c.number ?? '—'}</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex items-center gap-3">
+                <button onClick={next} className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-40" disabled={!selected}>{index+1 < questions.length ? 'Next' : 'Finish'}</button>
+                <div className="text-sm text-gray-300">
+                  {selected ? (
+                    selected === correct.name ? <span className="text-green-300">Correct! • {correct.fact}</span>
+                    : <span className="text-red-300">Incorrect. Correct: {correct.name} — {correct.fact}</span>
+                  ) : <span className="text-gray-500">Pick an answer to reveal the factoid.</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
